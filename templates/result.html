@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Result - Solar PV Power Forecasting</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      background-image: url("static/bg.jpeg");
+      background-repeat: no-repeat;
+      background-size: cover;
+    }
+
+    .header {
+      background-color: blue;
+      border-top: solid white 6pt;
+      border-bottom: solid white 6pt;
+      height: 100px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: white;
+      font-size: 24px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+    }
+
+    .content {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-top: 120pt;
+    }
+
+    .data-table {
+      background-color: white;
+      border: solid lightgray 1px;
+      border-radius: 4px;
+      padding: 20px;
+      max-width: 400px;
+      width: 100%;
+      margin-right: 20px;
+    }
+
+    .data-table table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .data-table th,
+    .data-table td {
+      border: solid lightgray 1px;
+      padding: 8px;
+      text-align: left;
+    }
+
+    .data-table th {
+      background-color: lightgray;
+    }
+
+    .plot {
+      background-color: white;
+      border: solid lightgray 1px;
+      border-radius: 4px;
+      padding: 20px;
+      max-width: 400px;
+      width: 100%;
+    }
+
+    .plot img {
+      max-width: 100%;
+      height: auto;
+    }
+
+    .download-button {
+  display: block;
+  margin-top: 20px;
+  background-color: blue;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>FORECASTING RESULTS</h1>
+  </div>
+  <div class="content">
+    <div class="data-table">
+      <h2>Sample Values</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Data</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for value in data[:5] %}
+            <tr>
+              <td>{{ value[0] }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <a href="{{ url_for('download_result', filename='processed_data.csv') }}" class="download-button">Download Processed Data</a>
+    </div>
+    <div class="plot">
+      <h2>Plot of next day forecast</h2>
+      <img src="{{ url_for('uploaded_file', filename='xyz.png') }}" alt="Plot">
+    </div>
+  </div>
+</body>
+</html>
+

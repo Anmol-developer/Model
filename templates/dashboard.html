@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Dashboard - Solar PV Power Forecasting</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      background-image: url("static/bg.jpeg");
+      background-repeat: no-repeat;
+      background-size: cover;
+      
+
+    }
+
+    .header {
+      background-color: blue;
+      border-top: solid white 6pt;
+      border-bottom: solid white 6pt;
+      height: 100px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: white;
+      font-size: 24px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+    }
+
+    .content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 120pt;
+    }
+
+    .location-box,
+    .upload-box {
+      background-color: white;
+      border: solid lightgray 1px;
+      border-radius: 4px;
+      padding: 20px;
+      max-width: 400px;
+      width: 100%;
+      margin-bottom: 20px;
+    }
+
+    .location-box input[type="text"] {
+      width: 95%;
+      padding: 10px;
+      margin-bottom: 10px;
+      border: solid lightgray 1px;
+      border-radius: 4px;
+    }
+
+    .location-box button {
+      background-color: blue;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .upload-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .upload-box input[type="file"] {
+      margin-bottom: 10px;
+    }
+
+    .upload-box button {
+      background-color: blue;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>FORECASTING DASHBOARD</h1>
+  </div>
+  <div class="content">
+    <div class="location-box">
+      <form onsubmit="getCoordinates(); return false;">
+        <label for="location-input">Enter Your Location:</label>
+        <input type="text" id="location-input" placeholder="Enter your location" />
+        <button type="button" onclick="getCoordinates()">Get Coordinates</button>
+        <div id="result">
+          <p id="latitude"></p>
+          <p id="longitude"></p>
+        </div>
+      </form>
+    </div>
+    <div class="upload-box">
+      <input type="file" id="file-upload" />
+      <button type="button" onclick="uploadFile(event)">Upload</button>
+
+    </div>
+  </div>
+
+  <script>
+    function getCoordinates() {
+      var locationInput = document.getElementById('location-input').value;
+      fetch(`/get_coordinates?location=${locationInput}`)
+        .then(response => response.json())
+        .then(data => {
+          if (data.error) {
+            document.getElementById('latitude').textContent = '';
+            document.getElementById('longitude').textContent = '';
+            alert(data.error);
+          } else {
+            document.getElementById('latitude').textContent = `Latitude: ${data.latitude}`;
+            document.getElementById('longitude').textContent = `Longitude: ${data.longitude}`;
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          document.getElementById('latitude').textContent = '';
+          document.getElementById('longitude').textContent = '';
+          alert('An error occurred while fetching coordinates.');
+        });
+    }
+
+  // JavaScript code
+
+function uploadFile(event) {
+  event.preventDefault();
+  var fileUpload = document.getElementById('file-upload');
+  var file = fileUpload.files[0];
+  var formData = new FormData();
+  formData.append('file', file);
+
+  fetch('/processing', {
+    method: 'POST',
+    body: formData
+  })
+    .then(response => response.text())
+    .then(data => {
+      // Log the response from the server
+      console.log(data);
+
+      // Show success message
+      alert('Data processing successful');
+
+      // Redirect to the result page
+      window.location.href = '/result';
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('An error occurred while uploading the file.');
+    });
+}
+
+
+
+  </script>
+</body>
+</html>
+
