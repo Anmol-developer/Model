@@ -24,36 +24,6 @@ def testing():
         'message':'this is testing'
     }
     return jsonify(result)
-
-# @app.route('/dashboard', methods=['GET', 'POST'])
-# def dashboard():
-#     if request.method == 'POST':
-#         username = request.form.get('username')
-#         password = request.form.get('password')
-
-#         # Add your authentication logic here
-#         if username == 'abcd' and password == '1234':
-#             return redirect('/dashboard')
-#         else:
-#             return render_template('index.html')
-
-#     return render_template('dashboard.html')
-    
-# @app.route('/get_coordinates', methods=['GET'])
-# def get_coordinates():
-#     location = request.args.get('location')
-#     geolocator = Nominatim(user_agent='my-app')
-
-#     try:
-#         location_data = geolocator.geocode(location, timeout=10)
-#         if location_data:
-#             latitude = location_data.latitude
-#             longitude = location_data.longitude
-#             return jsonify(latitude=latitude, longitude=longitude)
-#         else:
-#             return jsonify(error='Coordinates not found for provided location.')
-#     except Exception as e:
-#         return jsonify(error='An error occurred while fetching coordinates.')
         
        
 @app.route('/api/flask/processing', methods=['POST'])
