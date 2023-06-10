@@ -17,13 +17,6 @@ def allowed_file(filename):
 @app.route('/')
 def index():
     return render_template('index.html')
-
-@app.route('/api/flask/testing')
-def testing():
-    result = {
-        'message':'this is testing'
-    }
-    return jsonify(result)
         
        
 @app.route('/api/flask/processing', methods=['POST'])
