@@ -1,10 +1,10 @@
 import os
 from flask import Flask, render_template, request, jsonify, send_from_directory,redirect,url_for
 # from geopy.geocoders import Nominatim
-from flask import send_file
+# from flask import send_file
 from flask_cors import CORS
 import pandas as pd
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 app = Flask(__name__, static_url_path='/static')
 CORS(app,origins='http://localhost:3000')
 app.config['UPLOAD_FOLDER'] = 'uploads'  # Set the upload folder directory
@@ -21,6 +21,7 @@ def index():
        
 @app.route('/api/flask/processing', methods=['POST'])
 def process_file():
+    # userId = request.args.get('userId')
     if 'file' not in request.files:
         return jsonify(error='No file uploaded.')
     
@@ -48,24 +49,14 @@ def process_file():
         # Predict
         preds = pd.DataFrame(rf_model.predict(val_X))
         
-        
-        
-        #plot and save
-        last_44_preds = preds.iloc[-44:]
-        plt.plot(last_44_preds)
-        plt.xlabel('Index')
-        plt.ylabel('PV power')
-        plt.title('Next day Forecast')
-        plot_filename = os.path.join(app.config['UPLOAD_FOLDER'], 'xyz.png')
-        plt.savefig(plot_filename)
-        plt.close()
 
         # Save the processed data as a file
         processed_filename = os.path.join(app.config['UPLOAD_FOLDER'], 'processed_data.csv')
         preds.to_csv(processed_filename, index=False)
         
         # Redirect to the result page with the filename as a query parameter
-        return redirect(url_for('result', filename=processed_filename, plot_file=plot_filename))
+        return redirect(url_for('result', filename=processed_filename))
+        # return redirect(f"http://localhost:8080/forecast/{userId}?model=Randomforest")
 
         
     except Exception as e:
@@ -82,8 +73,6 @@ def result():
     
     # Pass the data to the template context
     return jsonify(data_rows)
-
-
 
 @app.route('/download_result/<filename>')
 def download_result(filename):
