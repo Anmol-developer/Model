@@ -118,7 +118,7 @@ def process_file():
         svr_filename = os.path.join(app.config['UPLOAD_FOLDER'], 'processed_data_svr.csv')
         svr_preds.to_csv(svr_filename, index=False)
 
-        return redirect('/result')
+        return jsonify({'message': 'Success'}), 200
 
 
         
