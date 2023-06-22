@@ -136,6 +136,6 @@ def result():
     # Pass the data to the template context
     return data
 
+
 if __name__ == '__main__':
     app.run(debug=True)
-
