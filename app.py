@@ -1,15 +1,16 @@
 import os
-from flask import Flask, request, jsonify,redirect,url_for
+from flask import Flask, request, jsonify
 # from celery import Celery
 # from geopy.geocoders import Nominatim
 import pandas as pd
 from flask_cors import CORS
+from pymongo import MongoClient
 app = Flask(__name__, static_url_path='/static')
 
 # Set up MongoDB
-# client = pymongo.MongoClient("mongodb+srv://AMalfez:AMalfez%402003@cluster0.h28yihv.mongodb.net")
-# db = client['task']
-# collection = db['tasks']
+client = MongoClient("mongodb+srv://AMalfez:AMalfez%402003@cluster0.h28yihv.mongodb.net")
+db = client['task']
+collection = db['task']
 
 # app.config["CELERY_BROKER_URL"] = "tcp://localhost" #implimenting celery for background calculation and zeromq as message broker
 # app.config['CELERY_RESULT_BACKEND'] = 'mongodb+srv://AMalfez:AMalfez%402003@cluster0.h28yihv.mongodb.net/task'
@@ -22,47 +23,6 @@ app.config['ALLOWED_EXTENSIONS'] = {'xlsx','csv'}  # Set the allowed file extens
 def allowed_file(filename):
     """Check if the file has an allowed extension"""
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
-
-     
-# @celery.task()
-# def forecast(file):
-    df = pd.read_excel(file)
-    X=df[['Ambient Temperature','Relative Humidity','Wind Speed','Cloud Cover']]
-    Y=df[['Solar Irradiation']]
-    Y=Y.values.ravel()
-    # Perform data processing on the df dataframe here
-    from sklearn.model_selection import train_test_split
-    from sklearn.ensemble import RandomForestRegressor
-    from sklearn.neighbors import KNeighborsRegressor
-    from lightgbm import LGBMRegressor
-    from sklearn.svm import SVR
-    train_X, val_X, train_y, val_y = train_test_split(X, Y, random_state=42, shuffle=False, test_size=0.2)
-    # Random Forest
-    rf_model = RandomForestRegressor(random_state=300)
-    rf_model.fit(train_X, train_y)
-    rf_preds = pd.DataFrame(rf_model.predict(val_X))
-    rf_filename = os.path.join(app.config['UPLOAD_FOLDER'], 'processed_data_RF.csv')
-    rf_preds.to_csv(rf_filename, index=False)
-    # KNN
-    knn_model = KNeighborsRegressor(n_neighbors=25)
-    knn_model.fit(train_X, train_y)
-    knn_preds = pd.DataFrame(knn_model.predict(val_X))
-    knn_filename = os.path.join(app.config['UPLOAD_FOLDER'], 'processed_data_knn.csv')
-    knn_preds.to_csv(knn_filename, index=False)
-    # LGBM
-    lgbm_model = LGBMRegressor(n_estimators=25)
-    lgbm_model.fit(train_X, train_y)
-    lgbm_preds = pd.DataFrame(lgbm_model.predict(val_X))
-    lgbm_filename = os.path.join(app.config['UPLOAD_FOLDER'], 'processed_data_lgbm.csv')
-    lgbm_preds.to_csv(lgbm_filename, index=False)
-    # SVR
-    svr_model = SVR(kernel='linear', C=1, gamma="scale", epsilon=0.0001)
-    svr_model.fit(train_X, train_y)
-    svr_preds = pd.DataFrame(svr_model.predict(val_X))
-    svr_filename = os.path.join(app.config['UPLOAD_FOLDER'], 'processed_data_svr.csv')
-    svr_preds.to_csv(svr_filename, index=False)
-    return 'Done forecasting!'
-
 
        
 @app.route('/api/flask/processing', methods=['POST'])
@@ -135,6 +95,13 @@ def result():
 
     # Pass the data to the template context
     return data
+
+@app.route('/testing', methods=['GET'])
+def testing():
+    #do some operations
+    new_document = request.get_json()
+    collection.insert_one(new_document)
+    return jsonify({'message': 'Document added successfully'})
 
 
 if __name__ == '__main__':
