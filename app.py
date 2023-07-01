@@ -102,29 +102,21 @@ def process_file():
         rf_model = RandomForestRegressor(random_state=300)
         rf_model.fit(train_X, train_y)
         rf_preds = pd.DataFrame(rf_model.predict(val_X))
-        rf_filename = os.path.join(app.config['UPLOAD_FOLDER'], 'processed_data_RF.csv')
-        rf_preds.to_csv(rf_filename, index=False)
 
         # KNN
         knn_model = KNeighborsRegressor(n_neighbors=25)
         knn_model.fit(train_X, train_y)
         knn_preds = pd.DataFrame(knn_model.predict(val_X))
-        knn_filename = os.path.join(app.config['UPLOAD_FOLDER'], 'processed_data_knn.csv')
-        knn_preds.to_csv(knn_filename, index=False)
 
         # LGBM
         lgbm_model = LGBMRegressor(n_estimators=25)
         lgbm_model.fit(train_X, train_y)
         lgbm_preds = pd.DataFrame(lgbm_model.predict(val_X))
-        lgbm_filename = os.path.join(app.config['UPLOAD_FOLDER'], 'processed_data_lgbm.csv')
-        lgbm_preds.to_csv(lgbm_filename, index=False)
 
         # SVR
         svr_model = SVR(kernel='linear', C=1, gamma="scale", epsilon=0.0001)
         svr_model.fit(train_X, train_y)
         svr_preds = pd.DataFrame(svr_model.predict(val_X))
-        svr_filename = os.path.join(app.config['UPLOAD_FOLDER'], 'processed_data_svr.csv')
-        svr_preds.to_csv(svr_filename, index=False)
 
         # sliced_svr = svr_preds[0][0]
         sliced_svr = []
@@ -169,11 +161,6 @@ def process_file():
         collection.update_one({'_id': ObjectId(userId)}, {'$push': {'PredictedData': temp}})
         return jsonify({'message': 'Success'}), 200
 
-        # collection.insert_one({'svr':sliced_svr, 'rf':sliced_rf, 'knn':sliced_knn, 'lgbm':sliced_lgbm})
-
-
-
-        
     except Exception as e:
         return jsonify(error=str(e))
     
