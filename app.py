@@ -4,7 +4,9 @@ from flask import Flask, request, jsonify
 # from geopy.geocoders import Nominatim
 import pandas as pd
 from flask_cors import CORS
+from datetime import date
 from pymongo import MongoClient
+from bson.objectid import ObjectId
 app = Flask(__name__, static_url_path='/static')
 
 # Set up MongoDB
@@ -24,9 +26,55 @@ def allowed_file(filename):
     """Check if the file has an allowed extension"""
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
 
+time_array = [
+    "07:00",
+    "07:15",
+    "07:30",
+    "07:45",
+    "08:00",
+    "08:15",
+    "08:30",
+    "08:45",
+    "09:00",
+    "09:15",
+    "09:30",
+    "09:45",
+    "10:00",
+    "10:15",
+    "10:30",
+    "10:45",
+    "11:00",
+    "11:15",
+    "11:30",
+    "11:45",
+    "12:00",
+    "12:15",
+    "12:30",
+    "12:45",
+    "13:00",
+    "13:15",
+    "13:30",
+    "13:45",
+    "14:00",
+    "14:15",
+    "14:30",
+    "14:45",
+    "15:00",
+    "15:15",
+    "15:30",
+    "15:45",
+    "16:00",
+    "16:15",
+    "16:30",
+    "16:45",
+    "17:00",
+  ]
+
        
 @app.route('/api/flask/processing', methods=['POST'])
 def process_file():
+    nextdate = request.args.get('nextdate')
+    userId = request.args.get('_id')
     if 'file' not in request.files:
         return jsonify(error='No file uploaded.')
     
@@ -77,9 +125,52 @@ def process_file():
         svr_preds = pd.DataFrame(svr_model.predict(val_X))
         svr_filename = os.path.join(app.config['UPLOAD_FOLDER'], 'processed_data_svr.csv')
         svr_preds.to_csv(svr_filename, index=False)
-        print(svr_preds[0][0])
 
+        # sliced_svr = svr_preds[0][0]
+        sliced_svr = []
+        for pred in range(41):
+            sliced_svr.append(svr_preds[0][pred])
+
+        sliced_lgbm = []
+        for pred in range(41):
+            sliced_lgbm.append(lgbm_preds[0][pred])
+
+        sliced_rf = []
+        for pred in range(41):
+            sliced_rf.append(rf_preds[0][pred])
+
+        sliced_knn = []
+        for pred in range(41):
+            sliced_knn.append(knn_preds[0][pred])
+
+        temp={
+            'date': date.today(),
+            '_id': ObjectId(),
+            'randomforest':[],
+            'svr':[],
+            'knn':[],
+            'lgbm':[]
+        }
+
+        for i in range(len(time_array)):
+            temp['randomforest'].append({
+                'date':nextdate, 'time':time_array[i], 'PredictedPV':sliced_rf[i]
+            })
+            temp['svr'].append({
+                'date':nextdate, 'time':time_array[i], 'PredictedPV':sliced_svr[i]
+            })
+            temp['knn'].append({
+                'date':nextdate, 'time':time_array[i], 'PredictedPV':sliced_knn[i]
+            })
+            temp['lgbm'].append({
+                'date':nextdate, 'time':time_array[i], 'PredictedPV':sliced_lgbm[i]
+            })
+
+        collection.update_one({'_id': ObjectId(userId)}, {'$push': {'PredictedData': temp}})
         return jsonify({'message': 'Success'}), 200
+
+        # collection.insert_one({'svr':sliced_svr, 'rf':sliced_rf, 'knn':sliced_knn, 'lgbm':sliced_lgbm})
+
 
 
         
