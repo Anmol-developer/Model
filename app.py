@@ -9,8 +9,8 @@ app = Flask(__name__, static_url_path='/static')
 
 # Set up MongoDB
 client = MongoClient("mongodb+srv://AMalfez:AMalfez%402003@cluster0.h28yihv.mongodb.net")
-db = client['task']
-collection = db['task']
+db = client['PVcast']
+collection = db['users']
 
 # app.config["CELERY_BROKER_URL"] = "tcp://localhost" #implimenting celery for background calculation and zeromq as message broker
 # app.config['CELERY_RESULT_BACKEND'] = 'mongodb+srv://AMalfez:AMalfez%402003@cluster0.h28yihv.mongodb.net/task'
@@ -77,6 +77,7 @@ def process_file():
         svr_preds = pd.DataFrame(svr_model.predict(val_X))
         svr_filename = os.path.join(app.config['UPLOAD_FOLDER'], 'processed_data_svr.csv')
         svr_preds.to_csv(svr_filename, index=False)
+        print(svr_preds[0][0])
 
         return jsonify({'message': 'Success'}), 200
 
@@ -99,8 +100,8 @@ def result():
 @app.route('/testing', methods=['GET'])
 def testing():
     #do some operations
-    new_document = request.get_json()
-    collection.insert_one(new_document)
+    # new_document = request.get_json()
+    collection.insert_one({'testing':'testing'})
     return jsonify({'message': 'Document added successfully'})
 
 
